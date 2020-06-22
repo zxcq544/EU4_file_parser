@@ -120,12 +120,12 @@ class EU4Parser:
         if self._current_token.type == "NUMBER":
             color_to_return.append(self._current_token.value)
             self._advance()
-            if self._current_token.type == "NUMBER":
-                color_to_return.append(self._current_token.value)
-                self._advance()
-                if self._current_token.type == "NUMBER":
-                    color_to_return.append(self._current_token.value)
-                    self._advance()
+        if self._current_token.type == "NUMBER":
+            color_to_return.append(self._current_token.value)
+            self._advance()
+        if self._current_token.type == "NUMBER":
+            color_to_return.append(self._current_token.value)
+            self._advance()
         if self._current_token.type == "RBRACKET":
             self._advance()
             return color_to_return
