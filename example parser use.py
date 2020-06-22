@@ -1,3 +1,4 @@
+import json
 from pprint import pprint
 
 import EU4FileParser
@@ -23,3 +24,9 @@ example_string_to_tokenize = file_data
 parser = EU4FileParser.EU4Parser()
 result = parser.parse(example_string_to_tokenize)
 pprint(result)
+
+# now write output to a file
+# out = open("achievements.json", "w")
+# magic happens here to make it pretty-printed
+# out.write(json.dumps(result, indent=4, sort_keys=True))
+# out.close()
