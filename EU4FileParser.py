@@ -14,9 +14,9 @@ def tokenize(string_to_tokenize):
     token_specification = [
         ('NUMBER', r'\d+(\.\d*)?'),  # Integer or decimal number
         ('ASSIGN', r'='),  # Assignment operator
-        # ('NEWLINE', r'[\n\r]'),  # Line endings
-        ('STRING', r'[\p{L}_/]+'),  # Unicode Strings
-        ('SKIP', r'[ \t"\n\r]*'),  # Skip over spaces and tabs
+        ('NEWLINE', r'[\n\r]'),  # Line endings
+        ('STRING', r'[\p{L}_/.0-9-]+'),  # Unicode Strings
+        ('SKIP', r'[ \t"]*'),  # Skip over spaces and tabs
         ('LBRACKET', r'{'),  # Opening bracket
         ('RBRACKET', r'}'),  # Closing bracket
         ('MISMATCH', r'.'),  # Any other character
@@ -32,10 +32,10 @@ def tokenize(string_to_tokenize):
             token_value = float(token_value) if '.' in token_value else int(token_value)
         elif token_type == 'SKIP':
             continue
-        # elif token_type == 'NEWLINE':
-        #     line_start = i.end()
-        #     line_num += 1
-        #     continue
+        elif token_type == 'NEWLINE':
+            line_start = i.end()
+            line_num += 1
+            continue
         elif token_type == 'MISMATCH':
             raise RuntimeError(f'{token_value!r} unexpected on line {line_num}')
         yield Token(token_type, token_value, line_num, column)
@@ -51,9 +51,9 @@ class EU4Parser:
         # print(text)
         text = re.sub('//', '/', text)
         # make floats normal string
-        text = re.sub(r"(\d.\d) (\d.\d) (\d.\d) }", r"\g<1>_\g<2>_\g<3>", text)
+        # text = re.sub(r"{ (\d.\d) (\d.\d) (\d.\d) }", r"\g<1>_\g<2>_\g<3>", text)
         # make x and y normal string
-        text = re.sub(r"x = (\d+) y = (\d+) }", r"x_\g<1>;y_\g<2>", text)
+        # text = re.sub(r"{ x = (\d+) y = (\d+) }", r"x_\g<1>;y_\g<2>", text)
         # remove comments
         text = re.sub(r'#.*\n?', '', text)
         return text
@@ -90,7 +90,11 @@ class EU4Parser:
             return to_return
         elif self._current_token.type == "LBRACKET":
             self._advance()
-            parsed_object = self._parse_object()
+            parsed_object = None
+            if self._current_token.type == "STRING":
+                parsed_object = self._parse_object()
+            elif self._current_token.type == "NUMBER":
+                parsed_object = self._parse_color()
             return parsed_object
 
     def _parse_object(self):
@@ -110,6 +114,21 @@ class EU4Parser:
             if self._current_token.type == "RBRACKET":
                 self._advance()
                 return dic_to_return
+
+    def _parse_color(self):
+        color_to_return = []
+        if self._current_token.type == "NUMBER":
+            color_to_return.append(self._current_token.value)
+            self._advance()
+            if self._current_token.type == "NUMBER":
+                color_to_return.append(self._current_token.value)
+                self._advance()
+                if self._current_token.type == "NUMBER":
+                    color_to_return.append(self._current_token.value)
+                    self._advance()
+        if self._current_token.type == "RBRACKET":
+            self._advance()
+            return color_to_return
 
     def _eu4format(self):
         dic_to_return = {}

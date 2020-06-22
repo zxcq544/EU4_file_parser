@@ -7,6 +7,11 @@ eu4format
    : pair+
    ;
 
+
+color
+   : '{' NUMBER NUMBER NUMBER '}'
+   ;
+
 obj
    : '{'  pair* '}'
    ;
@@ -18,6 +23,7 @@ pair
 value
    : STRING
    | NUMBER
+   |color
    | obj
    ;
 
