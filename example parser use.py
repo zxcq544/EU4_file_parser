@@ -1,7 +1,14 @@
+import glob
 import json
 from pprint import pprint
 
 import EU4FileParser
+
+gfx_file_list = []
+for file in glob.glob("./gfx files/*.gfx"):
+    gfx_file_list.append(file)
+
+print(gfx_file_list)
 
 with open('achievements.gfx') as f:
     file_data = f.read()
